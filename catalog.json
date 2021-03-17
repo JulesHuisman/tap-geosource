@@ -1,0 +1,68 @@
+{
+  "streams": [
+    {
+      "tap_stream_id": "gis_osm_adminareas_a_07_1",
+      "key_properties": [],
+      "schema": {
+        "properties": {
+          "osm_id": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "lastchange": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "code": {
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "fclass": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "geomtype": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "postalcode": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "name": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "geometry": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "selected": true,
+        "type": [
+          "null",
+          "object"
+        ],
+        "additionalProperties": false
+      },
+      "stream": "/home/jules/Github/thesis/data/dresden/gis_osm_adminareas_a_07_1.shp",
+      "metadata": []
+    }
+  ]
+}
