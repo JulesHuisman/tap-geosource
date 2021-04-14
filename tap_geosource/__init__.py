@@ -1,14 +1,9 @@
-#!/usr/bin/env python3
-import os
-import json
-from pprint import pprint
 from tap_geosource.geo import GeoSource
 import singer
-from singer import utils, metadata
+from singer import utils
 from singer.catalog import Catalog, CatalogEntry
-from singer.schema import Schema
+from singer.metrics import record_counter
 from tap_geosource.discovery import generate_schemas
-from tap_geosource.sync import geo_generator
 
 
 REQUIRED_CONFIG_KEYS = ['path']
@@ -51,7 +46,9 @@ def sync(config, state, catalog):
         # Fetch the layer from the geo source
         layer = geo_source.layers[stream.tap_stream_id]
 
-        LOGGER.info("Syncing stream:" + stream.tap_stream_id)
+        # Log some info about the stream
+        LOGGER.info(
+            f'Syncing stream: {stream.tap_stream_id} | Transformation: {str(layer.should_transform)}')
 
         singer.write_schema(
             stream_name=stream.tap_stream_id,
@@ -59,24 +56,13 @@ def sync(config, state, catalog):
             key_properties=stream.key_properties,
         )
 
-        for row in layer.features():
-            # write one or more rows to the stream:
-            singer.write_records(stream.tap_stream_id, [row])
+        with record_counter(log_interval=10) as counter:
+            for row in layer.features():
+                # Write a row to the stream
+                singer.write_records(stream.tap_stream_id, [row])
 
-    # # Loop over selected streams in catalog
-    # for stream in catalog.get_selected_streams(state):
-    #     LOGGER.info("Syncing stream:" + stream.tap_stream_id)
-
-    #     singer.write_schema(
-    #         stream_name=stream.tap_stream_id,
-    #         schema=stream.schema.to_dict(),
-    #         key_properties=stream.key_properties,
-    #     )
-
-    #     for row in geo_generator(stream):
-    #         # write one or more rows to the stream:
-    #         singer.write_records(stream.tap_stream_id, [row])
-    # return
+                # Log the records
+                counter.increment()
 
 
 @utils.handle_top_exception(LOGGER)

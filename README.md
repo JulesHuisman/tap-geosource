@@ -1,27 +1,10 @@
-# tap-geosource
+# Tap Geosource (WIP)
 
-Pipe into a csv file
-```
-~/.virtualenvs/tap-geosource/bin/tap-geosource -c config.json | ~/.virtualenvs/target-csv/bin/target-csv
-```
+Singer.io tap to ingest geospatial files.
 
-`python3 -m venv ~/.virtualenvs/tap-foobar`
-`source ~/.virtualenvs/tap-geosource/bin/activate`
-
-## Config
+## Release new version
+1. Build the wheel package
 ```
-path
-include_layers
+python setup.py sdist bdist_wheel
 ```
 
-include_layers: ["leefbaarometer:pc6_2018"]
-
-```
-~/.virtualenvs/tap-geosource/bin/tap-geosource -c config.json | ~/.virtualenvs/target-postgres/bin/target-postgres -c ~/singer.io/target_postgres_config.json >> state.json
-```
-
-```
-export GOOGLE_APPLICATION_CREDENTIALS=/home/jules/singer.io/target_bigquery_secret.json
-
-~/.virtualenvs/tap-geosource/bin/tap-geosource -c config.json | ~/.virtualenvs/target-bigquery/bin/target-bigquery -c ~/singer.io/target_bigquery_config.json >> state.json
-```
