@@ -74,6 +74,7 @@ def main():
     if args.discover:
         catalog = discover(args.config)
         catalog.dump()
+
     # Otherwise run in sync mode
     else:
         if args.catalog:
