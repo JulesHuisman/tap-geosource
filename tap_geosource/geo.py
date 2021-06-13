@@ -29,7 +29,9 @@ class GeoLayer:
         self.source_srid: int = source_srid
         self.target_srid: int = target_srid
         self.should_transform: bool = self.source_is_target == False
-        self.transformer = self.create_transformer()
+
+        if self.should_transform:
+            self.transformer = self.create_transformer()
 
     @property
     def name(self) -> str:
@@ -62,6 +64,8 @@ class GeoLayer:
         else:
             source_reference = self.layer.GetSpatialRef()
 
+        LOGGER.info(f'The source srid is: {source_reference.GetName()}')
+
         # If there source reference system cannot be found
         if not source_reference:
             raise Exception(
@@ -79,6 +83,9 @@ class GeoLayer:
         """
         target_reference = osr.SpatialReference()
         target_reference.ImportFromEPSG(self.target_srid)
+
+        LOGGER.info(f'The target srid is: {target_reference.GetName()}')
+
         return target_reference
 
     @property
@@ -90,6 +97,7 @@ class GeoLayer:
             bool: True, if source projection is equal to the target projection
         """
         if not self.target_srid:
+            LOGGER.info('No target')
             return True
         else:
             is_same = self.source_projection.IsSame(self.target_projection)
@@ -136,11 +144,14 @@ class GeoLayer:
             }
 
             # Add geometry to record if the layer has geometry
-            if self.has_geometry:
+            if self.should_transform:
                 geometry = feature.GetGeometryRef()
+                # geometry = feature.GetGeometryRef().MakeValid()
+                # geometry = feature.GetGeometryRef().Centroid()
+                # geometry = feature.GetGeometryRef().Simplify(0)
 
                 # If a re-projection is defined
-                if self.should_transform:
+                if self.transformer:
                     geometry.Transform(self.transformer)
 
                 record['geometry'] = geometry.ExportToJson()
@@ -158,18 +169,27 @@ class GeoSource:
         self.data_source: ogr.DataSource = ogr.Open(path)
         self.config: Dict = config
 
+        if not self.data_source:
+            raise Exception(
+                'Data source could not be loaded, check if it is valid')
+
     @property
     def layers(self) -> Dict[str, GeoLayer]:
         target_srid = self.config.get('target_srid', None)
         source_srid = self.config.get('source_srid', None)
         include_layers = self.config.get('include_layers', None)
 
+        # Exit out early if there is no data source
+        if self.data_source == None:
+            return {}
+
         # Fetch all layers
         layers = [GeoLayer(layer=layer,
                            source_srid=source_srid,
                            target_srid=target_srid)
                   for layer
-                  in self.data_source if layer]
+                  in self.data_source
+                  if layer]
 
         # If a selection of layers was made
         if include_layers:
