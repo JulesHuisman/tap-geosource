@@ -22,7 +22,7 @@ setup(
     install_requires=[
         "singer-python==5.12.1",
         "pathlib==1.0.1",
-        "GDAL==3.3.0"
+        "GDAL==3.2.1"
     ],
     entry_points="""
     [console_scripts]
